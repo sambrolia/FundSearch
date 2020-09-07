@@ -15,6 +15,25 @@ type Fund struct {
 	Root     *[]Fund
 }
 
+func ReadFromFile() []fund.Fund {
+	jsonFile, err := os.Open("fund.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Successfully opened fund.json")
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var funds []fund.Fund
+	err = json.Unmarshal(byteValue, &funds)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	return funds
+}
+
 func (f Fund) GetHoldings() []Holding {
 	var holdings []Holding
 	for _, holding := range f.Holdings {
