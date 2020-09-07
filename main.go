@@ -27,31 +27,12 @@ func readFile() []fund.Fund {
 	return funds
 }
 
-func buildFundTree(funds []fund.Fund) {
-
-	// Give each fund a pointer back to the array
-	for i, _ := range funds {
-		funds[i].Root = &funds
-	}
-
-	// Retreive the complete list of companies and
-	// their weightings
-	var holdings []fund.Holding
-	for _, fund := range funds {
-		holdings = append(holdings, fund.GetHoldings()...)
-	}
-
-	var totalWeight float32
-	for _, holding := range holdings {
-		totalWeight += holding.Weight
-	}
-	// Print result
-	fmt.Println("Holdings = ", holdings)
-	fmt.Println("Total Weight = ", totalWeight)
-
-}
-
 func main() {
 	funds := readFile()
-	buildFundTree(funds)
+	companyList, err := fund.GetAllCompanies(funds, "Ethicallobal Fund")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(companyList)
 }

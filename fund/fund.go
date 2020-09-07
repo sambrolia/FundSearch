@@ -1,8 +1,8 @@
 package fund
 
-// import (
-// 	"fmt"
-// )
+import (
+	"errors"
+)
 
 type Holding struct {
 	Name   string
@@ -40,4 +40,43 @@ func DiluteHoldings(parentWeight float32, holdings ...Holding) []Holding {
 		holdings[i].Weight = holdings[i].Weight * parentWeight
 	}
 	return holdings
+}
+
+func GetAllCompanies(funds []Fund, fundName string) ([]Holding, error) {
+	// Give each fund a pointer back to the array
+	for i, _ := range funds {
+		funds[i].Root = &funds
+	}
+
+	// Retreive the complete list of companies and
+	// their weightings
+	var holdings []Holding
+	fundFound := false
+	for _, fund := range funds {
+		if fund.Name == fundName {
+			holdings = append(holdings, fund.GetHoldings()...)
+			fundFound = true
+		}
+	}
+	if !fundFound {
+		return []Holding{}, errors.New("Fund not found: " + fundName)
+	}
+
+	/* Where multiple funds have returned the same company
+	combine them into a single total holding of each one */
+	return combineCompanyHoldings(holdings), nil
+}
+
+func combineCompanyHoldings(holdings []Holding) []Holding {
+	seen := make(map[string]float32)
+	combinedHoldings := []Holding{}
+	for _, holding := range holdings {
+		seen[holding.Name] += holding.Weight
+	}
+
+	for k, v := range seen {
+		combinedHoldings = append(combinedHoldings, Holding{k, v})
+	}
+
+	return combinedHoldings
 }
