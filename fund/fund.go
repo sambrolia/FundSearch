@@ -2,36 +2,18 @@ package fund
 
 import (
 	"errors"
+	"math"
 )
 
 type Holding struct {
 	Name   string
-	Weight float32
+	Weight float64
 }
 
 type Fund struct {
 	Name     string
 	Holdings []Holding
 	Root     *[]Fund
-}
-
-func ReadFromFile() []fund.Fund {
-	jsonFile, err := os.Open("fund.json")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Successfully opened fund.json")
-	defer jsonFile.Close()
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	var funds []fund.Fund
-	err = json.Unmarshal(byteValue, &funds)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
-	return funds
 }
 
 func (f Fund) GetHoldings() []Holding {
@@ -54,7 +36,7 @@ func (f Fund) GetHoldings() []Holding {
 	return holdings
 }
 
-func DiluteHoldings(parentWeight float32, holdings ...Holding) []Holding {
+func DiluteHoldings(parentWeight float64, holdings ...Holding) []Holding {
 	for i, _ := range holdings {
 		holdings[i].Weight = holdings[i].Weight * parentWeight
 	}
@@ -83,18 +65,18 @@ func GetAllCompanies(funds []Fund, fundName string) ([]Holding, error) {
 
 	/* Where multiple funds have returned the same company
 	combine them into a single total holding of each one */
-	return combineCompanyHoldings(holdings), nil
+	return combineAndRoundCompanyHoldings(holdings), nil
 }
 
-func combineCompanyHoldings(holdings []Holding) []Holding {
-	seen := make(map[string]float32)
+func combineAndRoundCompanyHoldings(holdings []Holding) []Holding {
+	seen := make(map[string]float64)
 	combinedHoldings := []Holding{}
 	for _, holding := range holdings {
 		seen[holding.Name] += holding.Weight
 	}
 
 	for k, v := range seen {
-		combinedHoldings = append(combinedHoldings, Holding{k, v})
+		combinedHoldings = append(combinedHoldings, Holding{k, math.Round(v*10000) / 10000})
 	}
 
 	return combinedHoldings
