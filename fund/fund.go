@@ -44,13 +44,14 @@ func DiluteHoldings(parentWeight float64, holdings ...Holding) []Holding {
 }
 
 func GetAllCompanies(funds []Fund, fundName string) ([]Holding, error) {
-	// Give each fund a pointer back to the array
+	/* Give each fund a pointer back to the array
+	so that it can look up other funds */
 	for i, _ := range funds {
 		funds[i].Root = &funds
 	}
 
-	// Retreive the complete list of companies and
-	// their weightings
+	/* Retreive the complete list of companies and
+	their weightings for the fundName passed in */
 	var holdings []Holding
 	fundFound := false
 	for _, fund := range funds {
@@ -59,6 +60,7 @@ func GetAllCompanies(funds []Fund, fundName string) ([]Holding, error) {
 			fundFound = true
 		}
 	}
+
 	if !fundFound {
 		return []Holding{}, errors.New("Fund not found: " + fundName)
 	}

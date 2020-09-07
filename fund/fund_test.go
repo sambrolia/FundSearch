@@ -7,14 +7,14 @@ import (
 	"testing"
 )
 
-// ByAge implements sort.Interface based on the Age field.
+// ByName implements sort.Interface based on the Name field.
 type ByName []Holding
 
 func (a ByName) Len() int           { return len(a) }
 func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-func RunGetAllCompanies(correctHoldings []Holding, fundName string) error {
+func RunGetAllCompanies(ExpectedHoldings []Holding, fundName string, fundFilePath string) error {
 	var r http.Request
 	funds := ReadFromFile("../examples/sample-funds.json", &r)
 	companyList, err := GetAllCompanies(funds, fundName)
@@ -22,13 +22,15 @@ func RunGetAllCompanies(correctHoldings []Holding, fundName string) error {
 		return err
 	}
 
-	// Sort by Holding Name
+	// Sort by Holding Name so that it will match our expected outcome
 	sort.Sort(ByName(companyList))
 
+	/* Error if the resultant holdings of the lookup
+	on fundName is not the expected holdings */
 	for i, _ := range companyList {
-		if companyList[i].Name != correctHoldings[i].Name {
+		if companyList[i].Name != ExpectedHoldings[i].Name {
 			return errors.New("Holding Name is incorrect")
-		} else if companyList[i].Weight != correctHoldings[i].Weight {
+		} else if companyList[i].Weight != ExpectedHoldings[i].Weight {
 			return errors.New("Holding Name is incorrect")
 		}
 	}
@@ -36,7 +38,7 @@ func RunGetAllCompanies(correctHoldings []Holding, fundName string) error {
 }
 func TestGetAllCompanies_EthicalGlobalFund(t *testing.T) {
 	fundName := "Ethical Global Fund"
-	correctHoldings := []Holding{
+	ExpectedHoldings := []Holding{
 		Holding{Name: "BeanzRUS", Weight: 0.21},
 		Holding{Name: "GoldenGadgets", Weight: 0.15},
 		Holding{Name: "GrapeCo", Weight: 0.347},
@@ -46,7 +48,7 @@ func TestGetAllCompanies_EthicalGlobalFund(t *testing.T) {
 		Holding{Name: "SpaceY", Weight: 0.105},
 	}
 
-	err := RunGetAllCompanies(correctHoldings, fundName)
+	err := RunGetAllCompanies(ExpectedHoldings, fundName, "../examples/sample-funds.json")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -54,13 +56,13 @@ func TestGetAllCompanies_EthicalGlobalFund(t *testing.T) {
 
 func TestGetAllCompanies_FundB(t *testing.T) {
 	fundName := "Fund B"
-	correctHoldings := []Holding{
+	ExpectedHoldings := []Holding{
 		Holding{Name: "GrapeCo", Weight: 0.2},
 		Holding{Name: "GreenCo", Weight: 0.3},
 		Holding{Name: "MicroFit", Weight: 0.5},
 	}
 
-	err := RunGetAllCompanies(correctHoldings, fundName)
+	err := RunGetAllCompanies(ExpectedHoldings, fundName, "../examples/sample-funds.json")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -68,7 +70,7 @@ func TestGetAllCompanies_FundB(t *testing.T) {
 
 func TestGetAllCompanies_FundC(t *testing.T) {
 	fundName := "Fund C"
-	correctHoldings := []Holding{
+	ExpectedHoldings := []Holding{
 		Holding{Name: "BeanzRUS", Weight: 0.24},
 		Holding{Name: "GoldenGadgets", Weight: 0.3},
 		Holding{Name: "GrapeCo", Weight: 0.308},
@@ -76,21 +78,21 @@ func TestGetAllCompanies_FundC(t *testing.T) {
 		Holding{Name: "SpaceY", Weight: 0.12},
 	}
 
-	err := RunGetAllCompanies(correctHoldings, fundName)
+	err := RunGetAllCompanies(ExpectedHoldings, fundName, "../examples/sample-funds.json")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 }
 func TestGetAllCompanies_FundD(t *testing.T) {
 	fundName := "Fund D"
-	correctHoldings := []Holding{
+	ExpectedHoldings := []Holding{
 		Holding{Name: "BeanzRUS", Weight: 0.6},
 		Holding{Name: "GrapeCo", Weight: 0.02},
 		Holding{Name: "SolarCorp", Weight: 0.08},
 		Holding{Name: "SpaceY", Weight: 0.3},
 	}
 
-	err := RunGetAllCompanies(correctHoldings, fundName)
+	err := RunGetAllCompanies(ExpectedHoldings, fundName, "../examples/sample-funds.json")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -98,12 +100,12 @@ func TestGetAllCompanies_FundD(t *testing.T) {
 
 func TestGetAllCompanies_FundE(t *testing.T) {
 	fundName := "Fund E"
-	correctHoldings := []Holding{
+	ExpectedHoldings := []Holding{
 		Holding{Name: "GrapeCo", Weight: 0.2},
 		Holding{Name: "SolarCorp", Weight: 0.8},
 	}
 
-	err := RunGetAllCompanies(correctHoldings, fundName)
+	err := RunGetAllCompanies(ExpectedHoldings, fundName, "../examples/sample-funds.json")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
