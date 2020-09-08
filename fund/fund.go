@@ -50,7 +50,7 @@ func GetAllCompanies(funds []Fund, fundName string) ([]Holding, error) {
 		funds[i].Root = &funds
 	}
 
-	/* Retreive the complete list of companies and
+	/* Retreive the complete list of companies   and
 	their weightings for the fundName passed in */
 	var holdings []Holding
 	fundFound := false
